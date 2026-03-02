@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Chibabchich Premium App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- Анимация загрузки --- */
+        .loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(56, 189, 248, 0.2);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Шапка и Реклама --- */
+        .header { padding: 20px; text-align: center; }
+        
+        .promo-banner {
+            margin: 10px 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- Навигация --- */
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tab {
+            padding: 15px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .tab.active {
+            opacity: 1;
+            color: var(--accent-color);
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        /* --- Контент --- */
+        .page { display: none; padding: 20px; animation: fadeIn 0.5s ease; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s;
+        }
+
+        .card:active { transform: scale(0.98); }
+
+        .badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            float: right;
+        }
+
+        .badge.premium { background: #f59e0b; color: #000; }
+        .badge.free { background: #10b981; }
+
+        /* --- Кнопки управления --- */
+        .btn-create {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .admin-stat {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="loader" id="loader"><div class="spinner"></div></div>
+
+<div class="header">
+    <h2>Chibabchich <span style="color: var(--accent-color)">App</span></h2>
+</div>
+
+<div class="promo-banner">
+    🚀 <b>Chibabchich Premium:</b> Шансы на победу х2!
+</div>
+
+<div class="nav-tabs">
+    <div class="tab active" onclick="showPage('contests')">Розыгрыши</div>
+    <div class="tab" onclick="showPage('admin')">Создатель</div>
+    <div class="tab" onclick="showPage('archive')">История</div>
+</div>
+
+<div id="contests" class="page active">
+    <h3>Доступные</h3>
+    <div class="card">
+        <span class="badge premium">PREMIUM</span>
+        <h4>iPhone 15 Pro Max</h4>
+        <p style="font-size: 12px; opacity: 0.7">Нужна подписка на 3 канала</p>
+        <small>До конца: 2ч 40мин</small>
+    </div>
+    <div class="card">
+        <span class="badge free">FREE</span>
+        <h4>1000 Telegram Stars</h4>
+        <p style="font-size: 12px; opacity: 0.7">Без условий</p>
+        <small>Завершится сегодня</small>
+    </div>
+</div>
+
+<div id="admin" class="page">
+    <button class="btn-create" onclick="createContest()">+ Создать розыгрыш</button>
+    
+    <div class="admin-stat">
+        <div class="stat-item">Активных: <b>3</b></div>
+        <div class="stat-item">Каналов: <b>12</b></div>
+    </div>
+
+    <h3>Ваши посты</h3>
+    <div class="card">
+        <div style="display:flex; justify-content: space-between">
+            <span>#124 - iPhone 15</span>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        <p style="font-size: 12px">Канал: @my_contest_channel</p>
+    </div>
+</div>
+
+<div id="archive" class="page">
+    <h3>Завершенные</h3>
+    <div class="card" style="opacity: 0.6">
+        <span class="badge free">ЗАВЕРШЕН</span>
+        <h4>AirPods Pro 2</h4>
+        <p style="font-size: 12px">Победитель: @winner_nick</p>
+    </div>
+    <div class="card" style="opacity: 0.6; border-left: 4px solid #ef4444">
+        <span class="badge free" style="background: #ef4444">ОТМЕНЕН</span>
+        <h4>Durov's Phone</h4>
+        <p style="font-size: 12px">Мало участников</p>
+    </div>
+</div>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // Симуляция прогрузки
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 1500);
+    };
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        
+        document.getElementById(pageId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        
+        // Виброотклик при переключении
+        tg.HapticFeedback.impactOccurred('light');
+    }
+
+    function createContest() {
+        tg.showAlert("Открывается конструктор розыгрыша...");
+    }
+</script>
+
+</body>
+</html>
