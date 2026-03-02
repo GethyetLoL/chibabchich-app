@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Chibabchich Premium App</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
     <style>
         :root {
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --accent-color: #38bdf8;
             --text-color: #f8fafc;
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
@@ -21,9 +28,10 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- Анимация загрузки --- */
+        /* Анимация загрузки */
         .loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -34,110 +42,117 @@
         }
 
         .spinner {
-            width: 50px; height: 50px;
-            border: 5px solid rgba(56, 189, 248, 0.2);
+            width: 40px; height: 40px;
+            border: 4px solid rgba(56, 189, 248, 0.1);
             border-top-color: var(--accent-color);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- Шапка и Реклама --- */
-        .header { padding: 20px; text-align: center; }
+        /* Шапка */
+        .header { 
+            padding: 25px 20px; 
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(56, 189, 248, 0.1), transparent);
+        }
         
+        .header h2 { margin: 0; font-size: 24px; font-weight: 700; }
+
+        /* Рекламный баннер */
         .promo-banner {
             margin: 10px 20px;
             padding: 15px;
             background: linear-gradient(135deg, #0ea5e9, #6366f1);
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            animation: pulse 3s infinite;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            font-weight: 600;
+            text-align: center;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- Навигация --- */
+        /* Навигация (Табы) */
         .nav-tabs {
             display: flex;
             justify-content: space-around;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(15px);
             position: sticky; top: 0; z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .tab {
-            padding: 15px;
+            padding: 15px 20px;
             cursor: pointer;
-            opacity: 0.6;
+            opacity: 0.5;
             transition: 0.3s;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         .tab.active {
             opacity: 1;
             color: var(--accent-color);
-            border-bottom: 3px solid var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
         }
 
-        /* --- Контент --- */
-        .page { display: none; padding: 20px; animation: fadeIn 0.5s ease; }
+        /* Контент и карточки */
+        .page { display: none; padding: 20px; }
         .page.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .card {
             background: var(--card-bg);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.2s;
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .card:active { transform: scale(0.98); }
+        .card:active { transform: scale(0.96); }
 
         .badge {
             font-size: 10px;
-            padding: 3px 8px;
-            border-radius: 10px;
+            padding: 4px 10px;
+            border-radius: 8px;
             float: right;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-
-        .badge.premium { background: #f59e0b; color: #000; }
+        .badge.premium { background: #f59e0b; color: #000; font-weight: bold; }
         .badge.free { background: #10b981; }
 
-        /* --- Кнопки управления --- */
+        /* Админ-панель */
         .btn-create {
             background: var(--accent-color);
-            color: white;
+            color: #fff;
             border: none;
-            padding: 15px;
+            padding: 16px;
             width: 100%;
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
         }
 
         .admin-stat {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
         .stat-item {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 14px;
             text-align: center;
+            border: 1px solid var(--glass-border);
         }
+
+        h3 { font-size: 18px; margin-bottom: 15px; opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -145,93 +160,129 @@
 <div class="loader" id="loader"><div class="spinner"></div></div>
 
 <div class="header">
-    <h2>Chibabchich <span style="color: var(--accent-color)">App</span></h2>
+    <h2 id="user-greeting">Chibabchich <span style="color: var(--accent-color)">App</span></h2>
 </div>
 
-<div class="promo-banner">
-    🚀 <b>Chibabchich Premium:</b> Шансы на победу х2!
+<div class="promo-banner" data-aos="zoom-in">
+    🚀 <b>Chibabchich Premium:</b> Увеличь шансы на победу!
 </div>
 
 <div class="nav-tabs">
-    <div class="tab active" onclick="showPage('contests')">Розыгрыши</div>
-    <div class="tab" onclick="showPage('admin')">Создатель</div>
-    <div class="tab" onclick="showPage('archive')">История</div>
+    <div class="tab active" onclick="showPage('contests', this)">Розыгрыши</div>
+    <div class="tab" onclick="showPage('admin', this)">Создатель</div>
+    <div class="tab" onclick="showPage('archive', this)">История</div>
 </div>
 
 <div id="contests" class="page active">
-    <h3>Доступные</h3>
-    <div class="card">
+    <h3>🔥 Активные сейчас</h3>
+    
+    <div class="card" data-aos="fade-up">
         <span class="badge premium">PREMIUM</span>
         <h4>iPhone 15 Pro Max</h4>
-        <p style="font-size: 12px; opacity: 0.7">Нужна подписка на 3 канала</p>
-        <small>До конца: 2ч 40мин</small>
+        <p style="font-size: 13px; opacity: 0.6">Подписка на 3 канала</p>
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <small><i class="far fa-clock"></i> 2ч 40мин</small>
+            <small><i class="fas fa-users"></i> 1,240</small>
+        </div>
     </div>
-    <div class="card">
+
+    <div class="card" data-aos="fade-up" data-aos-delay="100">
         <span class="badge free">FREE</span>
-        <h4>1000 Telegram Stars</h4>
-        <p style="font-size: 12px; opacity: 0.7">Без условий</p>
-        <small>Завершится сегодня</small>
+        <h4>5,000 Telegram Stars</h4>
+        <p style="font-size: 13px; opacity: 0.6">Без условий подписки</p>
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <small><i class="far fa-clock"></i> 12ч 15мин</small>
+            <small><i class="fas fa-users"></i> 850</small>
+        </div>
     </div>
 </div>
 
 <div id="admin" class="page">
-    <button class="btn-create" onclick="createContest()">+ Создать розыгрыш</button>
+    <button class="btn-create" onclick="createContest()">+ Создать новый розыгрыш</button>
     
     <div class="admin-stat">
-        <div class="stat-item">Активных: <b>3</b></div>
-        <div class="stat-item">Каналов: <b>12</b></div>
+        <div class="stat-item" data-aos="flip-left">Активных<br><b>3</b></div>
+        <div class="stat-item" data-aos="flip-right">Каналов<br><b>12</b></div>
     </div>
 
-    <h3>Ваши посты</h3>
-    <div class="card">
+    <h3>Твои посты</h3>
+    <div class="card" data-aos="fade-right">
         <div style="display:flex; justify-content: space-between">
             <span>#124 - iPhone 15</span>
-            <i class="fas fa-ellipsis-v"></i>
+            <i class="fas fa-cog"></i>
         </div>
-        <p style="font-size: 12px">Канал: @my_contest_channel</p>
+        <p style="font-size: 12px; margin-top: 5px; opacity: 0.5">Канал: @my_channel_test</p>
     </div>
 </div>
 
 <div id="archive" class="page">
-    <h3>Завершенные</h3>
-    <div class="card" style="opacity: 0.6">
+    <h3>📜 Прошлые результаты</h3>
+    <div class="card" style="opacity: 0.7" data-aos="fade-up">
         <span class="badge free">ЗАВЕРШЕН</span>
-        <h4>AirPods Pro 2</h4>
-        <p style="font-size: 12px">Победитель: @winner_nick</p>
+        <h4>Sony PlayStation 5</h4>
+        <p style="font-size: 13px">Победитель: @lucky_user</p>
     </div>
-    <div class="card" style="opacity: 0.6; border-left: 4px solid #ef4444">
-        <span class="badge free" style="background: #ef4444">ОТМЕНЕН</span>
+    
+    <div class="card" style="opacity: 0.7; border-left: 3px solid #ef4444" data-aos="fade-up">
+        <span class="badge" style="background: #ef4444">ОТМЕНЕН</span>
         <h4>Durov's Phone</h4>
-        <p style="font-size: 12px">Мало участников</p>
+        <p style="font-size: 13px">Причина: Тех. работы</p>
     </div>
 </div>
 
 <script>
+    // Инициализация Telegram Web App
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Симуляция прогрузки
+    // Получаем данные пользователя
+    const user = tg.initDataUnsafe?.user;
+    if (user) {
+        document.getElementById('user-greeting').innerHTML = 
+            `Привет, <span style="color: var(--accent-color)">${user.first_name}</span>`;
+    }
+
+    // Симуляция загрузки (скрываем лоадер)
     window.onload = () => {
         setTimeout(() => {
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-        }, 1500);
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        }, 1200);
     };
 
-    function showPage(pageId) {
+    // Функция переключения страниц
+    function showPage(pageId, element) {
+        // Убираем активные классы
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         
+        // Активируем нужную
         document.getElementById(pageId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        element.classList.add('active');
         
-        // Виброотклик при переключении
+        // Вибрация (Haptic Feedback)
         tg.HapticFeedback.impactOccurred('light');
+
+        // Перезапуск анимаций AOS для новой страницы
+        AOS.refresh();
     }
 
     function createContest() {
-        tg.showAlert("Открывается конструктор розыгрыша...");
+        tg.showPopup({
+            title: 'Конструктор',
+            message: 'Создание розыгрыша скоро будет доступно!',
+            buttons: [{type: 'close'}]
+        });
     }
+
+    // Инициализация анимаций AOS
+    AOS.init({
+        duration: 700,
+        easing: 'ease-out-cubic',
+        once: true,
+        offset: 50
+    });
 </script>
 
 </body>
