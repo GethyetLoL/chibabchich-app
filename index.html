@@ -2,50 +2,115 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chibabchich Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: var(--tg-theme-bg-color); --text: var(--tg-theme-text-color); --hint: var(--tg-theme-hint-color); --button: var(--tg-theme-button-color); }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
-        .header { text-align: left; margin-bottom: 20px; }
-        .card { background: var(--tg-theme-secondary-bg-color); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--hint); }
-        .card img { width: 100%; border-radius: 10px; margin-bottom: 10px; }
-        .card h3 { margin: 5px 0; font-size: 18px; }
-        .card p { color: var(--hint); font-size: 14px; margin: 5px 0; }
-        .btn { background: var(--button); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; }
-        .ref-box { background: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; font-size: 12px; margin-top: 20px; }
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #222222);
+            --hint-color: var(--tg-theme-hint-color, #999999);
+            --button-color: var(--tg-theme-button-color, #2481cc);
+            --button-text: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f7);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; padding: 16px;
+            -webkit-user-select: none;
+        }
+
+        .header { margin-bottom: 24px; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header p { margin: 4px 0 0 0; color: var(--hint-color); font-size: 14px; }
+
+        .contest-card {
+            background-color: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .contest-image {
+            width: 100%; height: 150px;
+            background-color: var(--button-color);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 48px; margin-bottom: 12px;
+            color: var(--button-text);
+        }
+
+        .contest-title { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
+        .contest-desc { font-size: 14px; color: var(--hint-color); margin-bottom: 16px; }
+
+        .btn-join {
+            background-color: var(--button-color);
+            color: var(--button-text);
+            border: none; border-radius: 10px;
+            width: 100%; padding: 12px;
+            font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+
+        .btn-join:active { opacity: 0.7; }
+
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            padding: 16px;
+            border-top: 1px solid var(--secondary-bg);
+        }
+
+        .ref-link {
+            font-size: 12px;
+            color: var(--button-color);
+            word-break: break-all;
+            margin-top: 8px;
+            display: block;
+        }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <h2 id="welcome">Привет!</h2>
+        <h1 id="user-name">Привет!</h1>
         <p>Доступные розыгрыши 👇</p>
     </div>
 
-    <div id="contest-list">
-        <div class="card">
-            <img src="https://via.placeholder.com/300x150" alt="Приз">
-            <h3>Розыгрыш #1</h3>
-            <p>🎁 Приз: iPhone 15 Pro</p>
-            <p>👥 Участников: 124</p>
-            <button class="btn" onclick="joinContest(1)">Участвовать</button>
+    <div id="contests-container">
+        <div class="contest-card">
+            <div class="contest-image">🎁</div>
+            <div class="contest-title">Загрузка данных...</div>
+            <div class="contest-desc">Бот получает список активных конкурсов</div>
+            <button class="btn-join" onclick="tg.close()">Ждите обновления</button>
         </div>
     </div>
 
-    <div class="ref-box">
-        <b>Твоя реферальная ссылка:</b><br>
-        <span id="ref-link">Загрузка...</span>
+    <div class="footer">
+        <b>Твоя пригласительная ссылка:</b>
+        <span id="ref-url" class="ref-link">Загрузка...</span>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
+        tg.ready();
         tg.expand();
-        document.getElementById("welcome").innerText = Привет, ${tg.initDataUnsafe.user.first_name}!;
-        document.getElementById("ref-link").innerText = https://t.me/ТВОЙ_БОТ?start=${tg.initDataUnsafe.user.id};
 
-        function joinContest(id) {
-            tg.sendData(join_request_${id}); // Отправляем данные боту
+        // Установка имени пользователя
+        const user = tg.initDataUnsafe.user;
+        if (user) {
+            document.getElementById('user-name').innerText = Привет, ${user.first_name}!;
+            // Замени 'ChibabchichBot' на актуальный юзернейм твоего бота
+            const botUsername = 'ChibabchichBot'; 
+            document.getElementById('ref-url').innerText = https://t.me/${botUsername}?start=${user.id};
+        }
+
+        // Функция отправки данных боту
+        function join(id) {
+            tg.sendData(join_app_${id});
         }
     </script>
 </body>
